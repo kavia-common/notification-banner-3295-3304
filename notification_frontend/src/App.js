@@ -7,34 +7,69 @@ import { useToast } from './components/ToastContainer';
 function App() {
   /**
    * A basic auth-like form with username and password that can:
-   * - Save changes (button) -> shows success toast "Changes saved successfully"
-   * - Submit form (submit button or Enter) -> shows success toast "Form submitted successfully"
-   * - If fields are empty on submit -> shows error toast "Please fill in all fields"
-   * Toasts stack at top-right and each auto-dismisses after its own duration.
+   * - Save changes (button) -> validates then shows success toast "Changes saved successfully"
+   * - Submit form (submit button or Enter) -> validates then shows success toast "Form submitted successfully"
+   * - If fields invalid -> shows separate error toasts describing each invalid field
+   * Toasts stack at top-right and each auto-dismisses after its own duration
+   * (success: 3000ms, error: 5000ms).
    */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { addToast } = useToast();
 
-  const triggerToast = (message, type = 'info', duration = 3000) => {
-    addToast({ message, type, duration });
+  const SUCCESS_DURATION = 3000;
+  const ERROR_DURATION = 5000;
+
+  const successToast = (message) => {
+    addToast({ message, type: 'success', duration: SUCCESS_DURATION });
+  };
+
+  const errorToast = (message) => {
+    addToast({ message, type: 'error', duration: ERROR_DURATION });
+  };
+
+  // Validate fields and emit toasts for every failure. Returns true if valid.
+  const validateAndToast = () => {
+    const errors = [];
+
+    const u = username.trim();
+    const p = password.trim();
+
+    if (!u) {
+      errors.push('Username is required');
+    } else if (u.length < 3) {
+      errors.push('Username must be at least 3 characters');
+    }
+
+    if (!p) {
+      errors.push('Password is required');
+    } else if (p.length < 6) {
+      errors.push('Password must be at least 6 characters');
+    }
+
+    if (errors.length > 0) {
+      // Emit separate error toasts so they stack
+      errors.forEach((msg) => errorToast(msg));
+      return false;
+    }
+    return true;
   };
 
   // Submit form handler
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) {
-      triggerToast('Please fill in all fields', 'error', 3000);
-      return;
-    }
+    if (!validateAndToast()) return;
+
     // Normally you would perform auth/submit logic here
-    triggerToast('Form submitted successfully', 'success', 3000);
+    successToast('Form submitted successfully');
   };
 
   // Save changes handler (non-submit action)
   const handleSaveChanges = () => {
+    if (!validateAndToast()) return;
+
     // Persist draft changes normally; here we only show a toast
-    triggerToast('Changes saved successfully', 'success', 3000);
+    successToast('Changes saved successfully');
   };
 
   return (
@@ -45,7 +80,9 @@ function App() {
             <div>
               <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
               <p className="mt-1 text-sm text-text/70">
-                Use the form below. "Save changes" shows a success toast. Submitting the form shows success when valid or an error if fields are empty. Auto-dismiss after 3 seconds.
+                Use the form below. "Save changes" and submitting the form validate fields.
+                Success shows a green toast (3s). Invalid inputs show specific error toasts (5s)
+                that stack without overlap.
               </p>
             </div>
             <a
