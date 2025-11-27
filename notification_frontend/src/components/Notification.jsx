@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  * A top-right fixed notification that auto-dismisses after 3000ms.
  * Props:
  * - message: string - Notification text to display
- * - type: 'info' | 'success' | 'error' - determines the color style (default: 'info')
+ * - type: 'info' | 'success' | 'error' | 'warning' | 'neutral' - determines the color style (default: 'info')
  * - onClose: function - callback invoked when notification closes (auto or manual)
  */
 export default function Notification({ message, type = 'info', onClose }) {
@@ -31,6 +31,18 @@ export default function Notification({ message, type = 'info', onClose }) {
       ring: 'ring-error/30',
       bg: 'from-error/10 to-surface',
       bar: 'bg-error',
+      text: 'text-text'
+    },
+    warning: {
+      ring: 'ring-amber-300',
+      bg: 'from-amber-100 to-surface',
+      bar: 'bg-amber-500',
+      text: 'text-text'
+    },
+    neutral: {
+      ring: 'ring-gray-300',
+      bg: 'from-gray-100 to-surface',
+      bar: 'bg-gray-500',
       text: 'text-text'
     }
   };
@@ -80,7 +92,7 @@ export default function Notification({ message, type = 'info', onClose }) {
             className={`mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full ${styles.bar} text-white`}
             aria-hidden="true"
           >
-            {type === 'success' ? '✓' : type === 'error' ? '!' : 'ℹ️'}
+            {type === 'success' ? '✓' : type === 'error' ? '!' : type === 'warning' ? '⚠️' : type === 'neutral' ? '•' : 'ℹ️'}
           </div>
 
           {/* Message */}
@@ -108,6 +120,6 @@ export default function Notification({ message, type = 'info', onClose }) {
 
 Notification.propTypes = {
   message: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(['info', 'success', 'error']),
+  type: PropTypes.oneOf(['info', 'success', 'error', 'warning', 'neutral']),
   onClose: PropTypes.func
 };

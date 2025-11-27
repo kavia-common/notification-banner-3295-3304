@@ -11,11 +11,16 @@ export default function ToastShowcase() {
   const { addToast } = useToast();
 
   // Preset buttons
-  const presets = useMemo(() => ([
-    { label: 'Success (2s)', type: 'success', duration: 2000, message: 'Operation succeeded' },
-    { label: 'Info (3s)', type: 'info', duration: 3000, message: 'Heads up, this is some information' },
-    { label: 'Error (5s)', type: 'error', duration: 5000, message: 'Something went wrong' },
-  ]), []);
+  const presets = useMemo(
+    () => [
+      { label: 'Success (2s)', type: 'success', duration: 2000, message: 'Operation succeeded' },
+      { label: 'Info (3s)', type: 'info', duration: 3000, message: 'Heads up, this is some information' },
+      { label: 'Error (5s)', type: 'error', duration: 5000, message: 'Something went wrong' },
+      { label: 'Warning (4s)', type: 'warning', duration: 4000, message: 'Please double-check your inputs' },
+      { label: 'Neutral (3s)', type: 'neutral', duration: 3000, message: 'General update available' },
+    ],
+    []
+  );
 
   // Custom form state
   const [customMsg, setCustomMsg] = useState('Custom toast message');
@@ -86,9 +91,11 @@ export default function ToastShowcase() {
                     onChange={(e) => setCustomType(e.target.value)}
                     className="mt-1 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
                   >
-                    <option value="info">info</option>
                     <option value="success">success</option>
                     <option value="error">error</option>
+                    <option value="info">info</option>
+                    <option value="warning">warning</option>
+                    <option value="neutral">neutral</option>
                   </select>
                 </div>
               </div>

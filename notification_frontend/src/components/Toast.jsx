@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
  * Props:
  * - message: string - content to display
  * - onClose: function - called after exit when user closes
- * - type: 'info' | 'success' | 'error'
+ * - type: 'info' | 'success' | 'error' | 'warning' | 'neutral'
  */
 export default function Toast({ message, onClose, type = 'info' }) {
   const [visible, setVisible] = useState(true);
@@ -35,26 +35,53 @@ export default function Toast({ message, onClose, type = 'info' }) {
       text: 'text-gray-900',
       iconBg: 'bg-blue-500',
     },
+    warning: {
+      ring: 'ring-amber-200',
+      bar: 'bg-amber-500',
+      text: 'text-gray-900',
+      iconBg: 'bg-amber-500',
+    },
+    neutral: {
+      ring: 'ring-gray-200',
+      bar: 'bg-gray-500',
+      text: 'text-gray-900',
+      iconBg: 'bg-gray-500',
+    },
   };
   const v = variants[type] || variants.info;
 
-  const icon = type === 'success'
-    ? (
+  // Icons per variant: success=check, error=close-circle, info=i, warning=triangle, neutral=dot/info-circle
+  const icon =
+    type === 'success' ? (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.071 7.071a1 1 0 01-1.414 0L3.293 9.95a1 1 0 111.414-1.414l3.101 3.101 6.364-6.364a1 1 0 011.535.02z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-7.071 7.071a1 1 0 01-1.414 0L3.293 9.95a1 1 0 111.414-1.414l3.101 3.101 6.364-6.364a1 1 0 011.535.02z"
+          clipRule="evenodd"
+        />
       </svg>
-    )
-    : type === 'error'
-      ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path fillRule="evenodd" d="M12 2a10 10 0 1010 10A10.011 10.011 0 0012 2zm3.536 12.95a1 1 0 11-1.415 1.414L12 13.243l-2.122 2.122a1 1 0 01-1.415-1.414L10.586 11.83 8.463 9.707a1 1 0 011.415-1.414L12 10.415l2.121-2.122a1 1 0 111.415 1.414L13.415 11.83z" clipRule="evenodd"/>
-        </svg>
-      )
-      : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M18 10A8 8 0 11.001 9.999 8 8 0 0118 10zM9 9h2v5H9V9zm0-3h2v2H9V6z" />
-        </svg>
-      );
+    ) : type === 'error' ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path
+          fillRule="evenodd"
+          d="M12 2a10 10 0 1010 10A10.011 10.011 0 0012 2zm3.536 12.95a1 1 0 11-1.415 1.414L12 13.243l-2.122 2.122a1 1 0 01-1.415-1.414L10.586 11.83 8.463 9.707a1 1 0 011.415-1.414L12 10.415l2.121-2.122a1 1 0 111.415 1.414L13.415 11.83z"
+          clipRule="evenodd"
+        />
+      </svg>
+    ) : type === 'warning' ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9a1 1 0 011 1v4a1 1 0 01-2 0v-4a1 1 0 011-1zm0 8a1.25 1.25 0 111.25-1.25A1.25 1.25 0 0112 17z" />
+      </svg>
+    ) : type === 'neutral' ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" />
+      </svg>
+    ) : (
+      // info default
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M18 10A8 8 0 11.001 9.999 8 8 0 0118 10zM9 9h2v5H9V9zm0-3h2v2H9V6z" />
+      </svg>
+    );
 
   // Inline fallback styles for environments without Tailwind (kept minimal)
   const cardStyle = {
@@ -66,7 +93,17 @@ export default function Toast({ message, onClose, type = 'info' }) {
     padding: '0.75rem 1rem',
     minWidth: '260px',
     maxWidth: '24rem',
-    border: `1px solid ${type === 'error' ? 'rgba(239,68,68,.3)' : type === 'success' ? 'rgba(34,197,94,.25)' : 'rgba(59,130,246,.25)'}`,
+    border: `1px solid ${
+      type === 'error'
+        ? 'rgba(239,68,68,.3)'
+        : type === 'success'
+        ? 'rgba(34,197,94,.25)'
+        : type === 'warning'
+        ? 'rgba(245,158,11,.3)'
+        : type === 'neutral'
+        ? 'rgba(107,114,128,.25)'
+        : 'rgba(59,130,246,.25)'
+    }`,
     transition: 'opacity 200ms ease, transform 200ms ease',
     transform: visible ? 'translateY(0)' : 'translateY(-6px)',
     opacity: visible ? 1 : 0,
@@ -77,7 +114,16 @@ export default function Toast({ message, onClose, type = 'info' }) {
     top: 0,
     height: '100%',
     width: '4px',
-    backgroundColor: type === 'error' ? '#EF4444' : type === 'success' ? '#22C55E' : '#3B82F6',
+    backgroundColor:
+      type === 'error'
+        ? '#EF4444'
+        : type === 'success'
+        ? '#22C55E'
+        : type === 'warning'
+        ? '#F59E0B'
+        : type === 'neutral'
+        ? '#6B7280'
+        : '#3B82F6',
   };
 
   return (
@@ -134,5 +180,5 @@ export default function Toast({ message, onClose, type = 'info' }) {
 Toast.propTypes = {
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func,
-  type: PropTypes.oneOf(['info', 'success', 'error']),
+  type: PropTypes.oneOf(['info', 'success', 'error', 'warning', 'neutral']),
 };
