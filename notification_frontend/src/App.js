@@ -1,41 +1,24 @@
 import React, { useState } from 'react';
 import './App.css';
 import './index.css';
-import Notification from './components/Notification';
+import Toast from './components/Toast';
 
 // PUBLIC_INTERFACE
 function App() {
   /**
-   * Demo app state to show notifications.
+   * Minimal form that triggers a success toast on submit.
    */
-  const [message, setMessage] = useState('');
-  const [showNotif, setShowNotif] = useState(false);
-  const [notifType, setNotifType] = useState('info');
+  const [formValue, setFormValue] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('Form submitted successfully');
 
-  const samples = [
-    { msg: 'Settings saved successfully.', type: 'success' },
-    { msg: 'New message received.', type: 'info' },
-    { msg: 'An error occurred. Please try again.', type: 'error' }
-  ];
-
-  const handleShowCustom = () => {
-    if (!message.trim()) {
-      setNotifType('error');
-      setMessage('Please enter a message first.');
-    } else {
-      setNotifType('info');
-    }
-    setShowNotif(false);
-    // trigger a re-render to ensure re-mount for auto-dismiss
-    setTimeout(() => setShowNotif(true), 0);
-  };
-
-  const handleShowRandom = () => {
-    const pick = samples[Math.floor(Math.random() * samples.length)];
-    setMessage(pick.msg);
-    setNotifType(pick.type);
-    setShowNotif(false);
-    setTimeout(() => setShowNotif(true), 0);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // In a real app, save changes here. For demo, just show a success toast.
+    setToastMsg('Changes saved successfully');
+    // Force re-mount so timer restarts on rapid submissions
+    setShowToast(false);
+    setTimeout(() => setShowToast(true), 0);
   };
 
   return (
@@ -43,51 +26,43 @@ function App() {
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="mx-auto mt-12 w-full max-w-lg rounded-2xl bg-surface shadow-md ring-1 ring-primary/10">
           <div className="border-b border-primary/10 px-6 py-4">
-            <h1 className="text-lg font-semibold text-text">Notification Demo</h1>
+            <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
             <p className="mt-1 text-sm text-text/70">
-              Ocean Professional theme · Blue accents with amber highlights
+              Submit the form to see a top-right success toast with auto-dismiss.
             </p>
           </div>
 
-          <div className="px-6 py-6">
-            <label htmlFor="message" className="block text-sm font-medium text-text">
-              Message
+          <form onSubmit={handleSubmit} className="px-6 py-6">
+            <label htmlFor="name" className="block text-sm font-medium text-text">
+              Name
             </label>
             <input
-              id="message"
+              id="name"
               type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type a custom notification message..."
+              value={formValue}
+              onChange={(e) => setFormValue(e.target.value)}
+              placeholder="Enter your name"
               className="mt-2 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 text-sm text-text placeholder:text-text/40 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
             />
 
             <div className="mt-6 flex items-center gap-3">
               <button
-                onClick={handleShowCustom}
+                type="submit"
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
-                data-testid="btn-show-custom"
+                data-testid="btn-save"
               >
-                Show Custom
-              </button>
-
-              <button
-                onClick={handleShowRandom}
-                className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow hover:bg-amber-500/90 focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition"
-                data-testid="btn-show-random"
-              >
-                Show Random
+                Save changes
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
-      {showNotif && (
-        <Notification
-          message={message}
-          type={notifType}
-          onClose={() => setShowNotif(false)}
+      {showToast && (
+        <Toast
+          message={toastMsg}
+          type="success"
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
