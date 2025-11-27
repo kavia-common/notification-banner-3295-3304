@@ -1,39 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 /**
  * PUBLIC_INTERFACE
  * Toast
- * Polished top-right toast with variants (success, error, info), icons, auto-dismiss (3s), and manual close.
+ * A single toast card (no fixed positioning). Meant to be rendered inside a ToastContainer
+ * that handles stacking and placement. Provides enter/exit transitions and manual close.
+ *
  * Props:
- * - message: string - Toast content to display
- * - onClose: function - callback invoked when toast closes (auto or manual)
- * - type: 'info' | 'success' | 'error' - determines color and icon (default: 'info')
- * Accessibility:
- * - role is 'alert' for error, 'status' otherwise
- * - aria-live="polite"
+ * - message: string - content to display
+ * - onClose: function - called after exit when user closes
+ * - type: 'info' | 'success' | 'error'
  */
 export default function Toast({ message, onClose, type = 'info' }) {
-  const timerRef = useRef(null);
   const [visible, setVisible] = useState(true);
 
-  useEffect(() => {
-    // Auto dismiss after 3s
-    timerRef.current = setTimeout(() => {
-      // animate exit then call onClose
-      setVisible(false);
-      setTimeout(() => {
-        if (onClose) onClose();
-      }, 200); // match transition duration
-    }, 3000);
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [onClose]);
-
   // Tailwind-first styles with Ocean Professional accents and a small left accent bar.
-  // Also provide inline fallback styles for non-Tailwind environments.
   const variants = {
     success: {
       ring: 'ring-green-200',
@@ -74,16 +56,7 @@ export default function Toast({ message, onClose, type = 'info' }) {
         </svg>
       );
 
-  // Inline fallback for non-Tailwind environments
-  const wrapperStyle = {
-    position: 'fixed',
-    top: '1rem',
-    right: '1rem',
-    zIndex: 50,
-    transform: visible ? 'translateY(0)' : 'translateY(-6px)',
-    opacity: visible ? 1 : 0,
-    transition: 'opacity 200ms ease, transform 200ms ease',
-  };
+  // Inline fallback styles for environments without Tailwind (kept minimal)
   const cardStyle = {
     position: 'relative',
     overflow: 'hidden',
@@ -94,6 +67,9 @@ export default function Toast({ message, onClose, type = 'info' }) {
     minWidth: '260px',
     maxWidth: '24rem',
     border: `1px solid ${type === 'error' ? 'rgba(239,68,68,.3)' : type === 'success' ? 'rgba(34,197,94,.25)' : 'rgba(59,130,246,.25)'}`,
+    transition: 'opacity 200ms ease, transform 200ms ease',
+    transform: visible ? 'translateY(0)' : 'translateY(-6px)',
+    opacity: visible ? 1 : 0,
   };
   const barStyle = {
     position: 'absolute',
@@ -103,66 +79,53 @@ export default function Toast({ message, onClose, type = 'info' }) {
     width: '4px',
     backgroundColor: type === 'error' ? '#EF4444' : type === 'success' ? '#22C55E' : '#3B82F6',
   };
-  const closeStyle = {
-    marginLeft: '0.5rem',
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
-    color: '#374151',
-    fontSize: '14px',
-  };
 
   return (
     <div
-      className="fixed top-4 right-4 z-50"
-      style={wrapperStyle}
       role={type === 'error' ? 'alert' : 'status'}
       aria-live="polite"
       data-testid="toast-wrapper"
+      className={[
+        'relative overflow-hidden rounded-lg shadow-lg ring-1 bg-white',
+        v.ring,
+        'px-4 py-3 min-w-[260px] max-w-sm',
+        'transition transform duration-200 ease-out',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1.5',
+      ].join(' ')}
+      style={cardStyle}
     >
-      <div
-        className={[
-          'relative overflow-hidden rounded-lg shadow-lg ring-1 bg-white',
-          v.ring,
-          'px-4 py-3 min-w-[260px] max-w-sm',
-          'transition transform duration-200 ease-out',
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1.5',
-        ].join(' ')}
-        style={cardStyle}
-      >
-        {/* left accent bar */}
-        <span className={['absolute left-0 top-0 h-full w-1', v.bar].join(' ')} style={barStyle} />
-        <div className="flex items-start gap-3">
-          {/* Icon */}
-          <div
-            className={['mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-white', v.iconBg].join(' ')}
-            aria-hidden="true"
-          >
-            {icon}
-          </div>
-
-          {/* Message */}
-          <div className="flex-1">
-            <p className={['text-sm', v.text].join(' ')} data-testid="toast-message">
-              {message}
-            </p>
-          </div>
-
-          {/* Close button */}
-          <button
-            type="button"
-            aria-label="Close toast"
-            onClick={() => {
-              setVisible(false);
-              setTimeout(() => onClose && onClose(), 200);
-            }}
-            className="ml-2 inline-flex items-center justify-center rounded-md p-1 text-gray-500 hover:text-gray-800 transition-colors"
-            style={closeStyle}
-            data-testid="toast-close"
-          >
-            <span aria-hidden="true">✕</span>
-          </button>
+      {/* left accent bar */}
+      <span className={['absolute left-0 top-0 h-full w-1', v.bar].join(' ')} style={barStyle} />
+      <div className="flex items-start gap-3">
+        {/* Icon */}
+        <div
+          className={['mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-white', v.iconBg].join(' ')}
+          aria-hidden="true"
+        >
+          {icon}
         </div>
+
+        {/* Message */}
+        <div className="flex-1">
+          <p className={['text-sm', v.text].join(' ')} data-testid="toast-message">
+            {message}
+          </p>
+        </div>
+
+        {/* Close button */}
+        <button
+          type="button"
+          aria-label="Close toast"
+          onClick={() => {
+            setVisible(false);
+            setTimeout(() => onClose && onClose(), 200);
+          }}
+          className="ml-2 inline-flex items-center justify-center rounded-md p-1 text-gray-500 hover:text-gray-800 transition-colors"
+          data-testid="toast-close"
+          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#374151', fontSize: '14px' }}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
       </div>
     </div>
   );

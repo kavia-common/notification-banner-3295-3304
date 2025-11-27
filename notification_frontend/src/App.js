@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import './index.css';
-import Toast from './components/Toast';
+import { useToast } from './components/ToastContainer';
 
 // PUBLIC_INTERFACE
 function App() {
@@ -10,37 +10,31 @@ function App() {
    * - Save changes (button) -> shows success toast "Changes saved successfully"
    * - Submit form (submit button or Enter) -> shows success toast "Form submitted successfully"
    * - If fields are empty on submit -> shows error toast "Please fill in all fields"
-   * Toast auto-dismisses after 3s and has a manual close button, implemented in Toast component.
+   * Toasts stack at top-right and each auto-dismisses after its own duration.
    */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('Form submitted successfully');
-  const [toastType, setToastType] = useState('info');
+  const { addToast } = useToast();
 
-  // Helper to show toast and restart its 3s timer by remounting
-  const triggerToast = (message, type = 'info') => {
-    setToastMsg(message);
-    setToastType(type);
-    setShowToast(false);
-    setTimeout(() => setShowToast(true), 0);
+  const triggerToast = (message, type = 'info', duration = 3000) => {
+    addToast({ message, type, duration });
   };
 
   // Submit form handler
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
-      triggerToast('Please fill in all fields', 'error');
+      triggerToast('Please fill in all fields', 'error', 3000);
       return;
     }
     // Normally you would perform auth/submit logic here
-    triggerToast('Form submitted successfully', 'success');
+    triggerToast('Form submitted successfully', 'success', 3000);
   };
 
   // Save changes handler (non-submit action)
   const handleSaveChanges = () => {
     // Persist draft changes normally; here we only show a toast
-    triggerToast('Changes saved successfully', 'success');
+    triggerToast('Changes saved successfully', 'success', 3000);
   };
 
   return (
@@ -114,14 +108,6 @@ function App() {
           </form>
         </div>
       </div>
-
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          type={toastType}
-          onClose={() => setShowToast(false)}
-        />
-      )}
     </div>
   );
 }

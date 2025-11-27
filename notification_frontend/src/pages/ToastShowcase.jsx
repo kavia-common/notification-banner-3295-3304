@@ -1,75 +1,14 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import Toast from '../components/Toast';
+import React, { useMemo, useState } from 'react';
+import { useToast } from '../components/ToastContainer';
 
 /**
  * PUBLIC_INTERFACE
  * ToastShowcase
- * A small demo page with buttons to trigger toasts for success, error, and info variants
- * and support for multiple durations (e.g., 2s, 3s, 5s). Also includes a simple custom
- * message + duration form.
- *
- * Behavior:
- * - Multiple toasts can be triggered. Since the Toast component is single-instance UI,
- *   we render a stack of toasts using a queue (array) and remove each on close.
- * - If desired, rapidly re-triggering simply pushes to the queue; each toast closes itself after
- *   its own duration (passed down via props by causing Toast to unmount when finished).
- *
- * Notes:
- * - We reuse the existing Toast component, which auto-dismisses after 3s internally. To support
- *   custom durations, we manage per-item timers in this page and close/remove the toast at the
- *   desired time. Closing triggers unmount which is the same effect.
+ * Provides buttons to trigger toasts for different types and durations using the ToastContainer API.
+ * Multiple toasts stack at the top-right without overlapping.
  */
-
-/**
- * A toast item record for local queue.
- * @typedef {Object} ToastItem
- * @property {string} id - unique id
- * @property {string} message - toast text
- * @property {'info'|'success'|'error'} type - toast type
- * @property {number} duration - milliseconds to keep toast open
- */
-
-function uid() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
 export default function ToastShowcase() {
-  const [queue, setQueue] = useState(
-    /** @type {ToastItem[]} */([])
-  );
-
-  // Keep timeout handles so we can clear on unmount/remove
-  const timersRef = useRef(new Map());
-
-  const scheduleRemoval = useCallback((id, duration) => {
-    // Clear existing timer if any
-    if (timersRef.current.has(id)) {
-      clearTimeout(timersRef.current.get(id));
-    }
-    const handle = setTimeout(() => {
-      // Remove item by id
-      setQueue((prev) => prev.filter((t) => t.id !== id));
-      timersRef.current.delete(id);
-    }, duration);
-    timersRef.current.set(id, handle);
-  }, []);
-
-  const pushToast = useCallback((message, type, duration) => {
-    const id = uid();
-    const item = { id, message, type, duration };
-    setQueue((prev) => [...prev, item]);
-    scheduleRemoval(id, duration);
-  }, [scheduleRemoval]);
-
-  const handleClose = useCallback((id) => {
-    // Manual close: cancel timer and remove immediately
-    const handle = timersRef.current.get(id);
-    if (handle) {
-      clearTimeout(handle);
-      timersRef.current.delete(id);
-    }
-    setQueue((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const { addToast } = useToast();
 
   // Preset buttons
   const presets = useMemo(() => ([
@@ -91,7 +30,7 @@ export default function ToastShowcase() {
             <div>
               <h1 className="text-lg font-semibold text-text">Toast Showcase</h1>
               <p className="mt-1 text-sm text-text/70">
-                Trigger toasts for different variants and durations. Multiple toasts can be queued.
+                Trigger toasts for different variants and durations. Multiple toasts can be queued and will stack.
               </p>
             </div>
             <a
@@ -110,7 +49,7 @@ export default function ToastShowcase() {
                   key={p.label}
                   type="button"
                   className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-medium text-text shadow ring-1 ring-primary/10 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
-                  onClick={() => pushToast(p.message, p.type, p.duration)}
+                  onClick={() => addToast({ message: p.message, type: p.type, duration: p.duration })}
                   data-testid={`btn-${p.label.replace(/\s|\(|\)|s/g, '').toLowerCase()}`}
                 >
                   {p.label}
@@ -176,7 +115,7 @@ export default function ToastShowcase() {
                     type="button"
                     onClick={() => {
                       const dur = Number(customDuration) || 3000;
-                      pushToast(customMsg || 'Custom toast', customType, dur);
+                      addToast({ message: customMsg || 'Custom toast', type: customType, duration: dur });
                     }}
                     className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-white shadow hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/40 transition"
                     data-testid="btn-custom-toast"
@@ -188,23 +127,10 @@ export default function ToastShowcase() {
             </div>
 
             <p className="mt-6 text-xs text-text/60">
-              Note: The showcase manages durations per toast and removes them accordingly. The Toast component
-              itself auto-dismisses after ~3s internally; early removal causes it to unmount, matching expected behavior.
+              Note: The container manages durations per toast and removes them accordingly. Each toast can be closed manually without affecting others.
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Render a stack of toasts; each item manages its own lifecycle via timers above. */}
-      <div aria-live="polite" aria-relevant="additions removals">
-        {queue.map((item) => (
-          <Toast
-            key={item.id}
-            message={item.message}
-            type={item.type}
-            onClose={() => handleClose(item.id)}
-          />
-        ))}
       </div>
     </div>
   );
