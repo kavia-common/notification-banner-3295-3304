@@ -9,16 +9,19 @@ function App() {
    * A basic auth-like form with username and password that can:
    * - Save changes (button) -> shows success toast "Changes saved successfully"
    * - Submit form (submit button or Enter) -> shows success toast "Form submitted successfully"
+   * - If fields are empty on submit -> shows error toast "Please fill in all fields"
    * Toast auto-dismisses after 3s and has a manual close button, implemented in Toast component.
    */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('Form submitted successfully');
+  const [toastType, setToastType] = useState('info');
 
   // Helper to show toast and restart its 3s timer by remounting
-  const triggerToast = (message) => {
+  const triggerToast = (message, type = 'info') => {
     setToastMsg(message);
+    setToastType(type);
     setShowToast(false);
     setTimeout(() => setShowToast(true), 0);
   };
@@ -26,14 +29,18 @@ function App() {
   // Submit form handler
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!username.trim() || !password.trim()) {
+      triggerToast('Please fill in all fields', 'error');
+      return;
+    }
     // Normally you would perform auth/submit logic here
-    triggerToast('Form submitted successfully');
+    triggerToast('Form submitted successfully', 'success');
   };
 
   // Save changes handler (non-submit action)
   const handleSaveChanges = () => {
     // Persist draft changes normally; here we only show a toast
-    triggerToast('Changes saved successfully');
+    triggerToast('Changes saved successfully', 'success');
   };
 
   return (
@@ -43,7 +50,7 @@ function App() {
           <div className="border-b border-primary/10 px-6 py-4">
             <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
             <p className="mt-1 text-sm text-text/70">
-              Use the form below. "Save changes" shows a success toast. Submitting the form shows another success toast. Both auto-dismiss after 3 seconds.
+              Use the form below. "Save changes" shows a success toast. Submitting the form shows success when valid or an error if fields are empty. Auto-dismiss after 3 seconds.
             </p>
           </div>
 
@@ -103,7 +110,7 @@ function App() {
       {showToast && (
         <Toast
           message={toastMsg}
-          type="success"
+          type={toastType}
           onClose={() => setShowToast(false)}
         />
       )}
