@@ -56,25 +56,21 @@ function App() {
   // Live hint messages based on current values (no toasts)
   const usernameHint = useMemo(() => {
     const u = username.trim();
-    // Do not show "Required" inline; only show length hint if present
     if (u && u.length < 3) return 'Must be at least 3 characters';
-    return ''; // no hint when empty or valid
+    return '';
   }, [username]);
 
   const passwordHint = useMemo(() => {
     const p = password.trim();
-    // Do not show "Required" inline; only show length hint if present
     if (p && p.length < 6) return 'Must be at least 6 characters';
-    return ''; // no hint when empty or valid
+    return '';
   }, [password]);
 
-  // Submit form handler: single invalid toast if invalid, success on valid.
   const handleSubmit = (e) => {
     e.preventDefault();
     const { valid } = computeValidation();
 
     if (!valid) {
-      // Exactly one toast, 3000ms, error type as appropriate
       errorToast('Please fill in the required details', 3000);
       return;
     }
@@ -82,11 +78,9 @@ function App() {
     successToast('Form submitted successfully');
   };
 
-  // Save changes handler (non-submit action): keep existing behavior (field-specific toasts).
   const handleSaveChanges = () => {
     const { valid, errors } = computeValidation();
     if (!valid) {
-      // Emit separate error toasts so they stack (existing behavior)
       errors.forEach((msg) => errorToast(msg));
       return;
     }
@@ -94,16 +88,15 @@ function App() {
     successToast('Changes saved successfully');
   };
 
-  // Basic styles for inline hints (Tailwind if available; inline fallback included)
   const hintBaseClasses = 'mt-1 text-xs';
-  const hintNeutralClasses = 'text-gray-500'; // neutral info
-  const hintErrorClasses = 'text-red-600'; // error
+  const hintNeutralClasses = 'text-gray-500';
+  const hintErrorClasses = 'text-red-600';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500/10 to-gray-50">
-      <div className="mx-auto max-w-2xl px-4 py-16">
-        <div className="mx-auto mt-12 w-full max-w-lg rounded-2xl bg-surface shadow-md ring-1 ring-primary/10">
-          <div className="flex items-start justify-between border-b border-primary/10 px-6 py-4">
+      <div className="mx-auto max-w-2xl px-4 py-10 sm:py-16">
+        <div className="mx-auto w-full max-w-lg rounded-2xl bg-surface shadow-md ring-1 ring-primary/10">
+          <div className="flex items-start justify-between border-b border-primary/10 px-5 py-4 sm:px-6">
             <div>
               <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
               <p className="mt-1 text-sm text-text/70">
@@ -119,7 +112,7 @@ function App() {
             </a>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-5 py-5 sm:px-6 sm:py-6">
             <div className="space-y-4">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-text">
@@ -178,7 +171,7 @@ function App() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <button
                 type="button"
                 onClick={handleSaveChanges}

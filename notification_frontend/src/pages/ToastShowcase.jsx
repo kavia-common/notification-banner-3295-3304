@@ -10,7 +10,6 @@ import { useToast } from '../components/ToastContainer';
 export default function ToastShowcase() {
   const { addToast } = useToast();
 
-  // Preset buttons
   const presets = useMemo(
     () => [
       { label: 'Success (2s)', type: 'success', duration: 2000, message: 'Operation succeeded' },
@@ -22,16 +21,15 @@ export default function ToastShowcase() {
     []
   );
 
-  // Custom form state
   const [customMsg, setCustomMsg] = useState('Custom toast message');
   const [customDuration, setCustomDuration] = useState(3000);
   const [customType, setCustomType] = useState('info');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500/10 to-gray-50">
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:py-12">
         <div className="rounded-2xl bg-surface shadow-md ring-1 ring-primary/10">
-          <div className="flex items-center justify-between border-b border-primary/10 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-primary/10 px-5 py-4 sm:px-6">
             <div>
               <h1 className="text-lg font-semibold text-text">Toast Showcase</h1>
               <p className="mt-1 text-sm text-text/70">
@@ -46,8 +44,7 @@ export default function ToastShowcase() {
             </a>
           </div>
 
-          <div className="px-6 py-6">
-            {/* Preset buttons */}
+          <div className="px-5 py-5 sm:px-6 sm:py-6">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {presets.map((p) => (
                 <button
@@ -62,7 +59,6 @@ export default function ToastShowcase() {
               ))}
             </div>
 
-            {/* Custom section */}
             <div className="mt-8 rounded-xl border border-primary/10 bg-white p-4">
               <h2 className="text-sm font-semibold text-text">Custom toast</h2>
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">

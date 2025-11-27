@@ -65,32 +65,23 @@ export default function ToastContainer({ children }) {
       {children}
       {/* Fixed top-right stack container */}
       <div
-        className="fixed top-4 right-4 z-50 flex flex-col items-end gap-3"
+        className="pointer-events-none fixed top-4 right-4 z-50 flex max-w-full flex-col items-end gap-3 sm:max-w-xs md:max-w-sm"
         role="region"
         aria-label="Notifications"
         aria-live="polite"
         aria-relevant="additions removals"
         data-testid="toast-container"
-        style={{
-          position: 'fixed',
-          top: '1rem',
-          right: '1rem',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '0.75rem'
-        }}
       >
         {toasts.map((t) => (
-          <Toast
-            key={t.id}
-            message={t.message}
-            type={t.type}
-            // Toast still has its own internal micro exit animation. We rely on our timers for duration,
-            // but allow manual close to remove this one without affecting others.
-            onClose={() => removeToast(t.id)}
-          />
+          <div key={t.id} className="pointer-events-auto">
+            <Toast
+              message={t.message}
+              type={t.type}
+              // Toast still has its own internal micro exit animation. We rely on our timers for duration,
+              // but allow manual close to remove this one without affecting others.
+              onClose={() => removeToast(t.id)}
+            />
+          </div>
         ))}
       </div>
     </ToastContainerContext.Provider>

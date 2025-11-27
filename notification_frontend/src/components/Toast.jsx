@@ -15,42 +15,16 @@ import PropTypes from 'prop-types';
 export default function Toast({ message, onClose, type = 'info' }) {
   const [visible, setVisible] = useState(true);
 
-  // Tailwind-first styles with Ocean Professional accents and a small left accent bar.
+  // Ocean Professional themed variants using Tailwind utilities
   const variants = {
-    success: {
-      ring: 'ring-green-200',
-      bar: 'bg-green-500',
-      text: 'text-gray-900',
-      iconBg: 'bg-green-500',
-    },
-    error: {
-      ring: 'ring-red-200',
-      bar: 'bg-red-500',
-      text: 'text-gray-900',
-      iconBg: 'bg-red-500',
-    },
-    info: {
-      ring: 'ring-blue-200',
-      bar: 'bg-blue-500',
-      text: 'text-gray-900',
-      iconBg: 'bg-blue-500',
-    },
-    warning: {
-      ring: 'ring-amber-200',
-      bar: 'bg-amber-500',
-      text: 'text-gray-900',
-      iconBg: 'bg-amber-500',
-    },
-    neutral: {
-      ring: 'ring-gray-200',
-      bar: 'bg-gray-500',
-      text: 'text-gray-900',
-      iconBg: 'bg-gray-500',
-    },
+    success: { ring: 'ring-success/30', bar: 'bg-success', text: 'text-text', iconBg: 'bg-success' },
+    error: { ring: 'ring-error/30', bar: 'bg-error', text: 'text-text', iconBg: 'bg-error' },
+    info: { ring: 'ring-primary/30', bar: 'bg-primary', text: 'text-text', iconBg: 'bg-primary' },
+    warning: { ring: 'ring-amber-300', bar: 'bg-amber-500', text: 'text-text', iconBg: 'bg-amber-500' },
+    neutral: { ring: 'ring-gray-300', bar: 'bg-gray-500', text: 'text-text', iconBg: 'bg-gray-500' },
   };
   const v = variants[type] || variants.info;
 
-  // Icons per variant: success=check, error=close-circle, info=i, warning=triangle, neutral=dot/info-circle
   const icon =
     type === 'success' ? (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -77,54 +51,10 @@ export default function Toast({ message, onClose, type = 'info' }) {
         <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" />
       </svg>
     ) : (
-      // info default
       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path d="M18 10A8 8 0 11.001 9.999 8 8 0 0118 10zM9 9h2v5H9V9zm0-3h2v2H9V6z" />
       </svg>
     );
-
-  // Inline fallback styles for environments without Tailwind (kept minimal)
-  const cardStyle = {
-    position: 'relative',
-    overflow: 'hidden',
-    borderRadius: '0.75rem',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05)',
-    background: '#fff',
-    padding: '0.75rem 1rem',
-    minWidth: '260px',
-    maxWidth: '24rem',
-    border: `1px solid ${
-      type === 'error'
-        ? 'rgba(239,68,68,.3)'
-        : type === 'success'
-        ? 'rgba(34,197,94,.25)'
-        : type === 'warning'
-        ? 'rgba(245,158,11,.3)'
-        : type === 'neutral'
-        ? 'rgba(107,114,128,.25)'
-        : 'rgba(59,130,246,.25)'
-    }`,
-    transition: 'opacity 200ms ease, transform 200ms ease',
-    transform: visible ? 'translateY(0)' : 'translateY(-6px)',
-    opacity: visible ? 1 : 0,
-  };
-  const barStyle = {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    height: '100%',
-    width: '4px',
-    backgroundColor:
-      type === 'error'
-        ? '#EF4444'
-        : type === 'success'
-        ? '#22C55E'
-        : type === 'warning'
-        ? '#F59E0B'
-        : type === 'neutral'
-        ? '#6B7280'
-        : '#3B82F6',
-  };
 
   return (
     <div
@@ -132,33 +62,31 @@ export default function Toast({ message, onClose, type = 'info' }) {
       aria-live="polite"
       data-testid="toast-wrapper"
       className={[
-        'relative overflow-hidden rounded-lg shadow-lg ring-1 bg-white',
+        // Card shell
+        'relative overflow-hidden rounded-lg bg-surface ring-1 shadow-md',
         v.ring,
         'px-4 py-3 min-w-[260px] max-w-sm',
-        'transition transform duration-200 ease-out',
+        // Motion
+        'transition-all duration-200 ease-out',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1.5',
       ].join(' ')}
-      style={cardStyle}
+      // keep a minimal inline fallback border radius/shadow in case Tailwind fails
+      style={{ borderRadius: 12 }}
     >
-      {/* left accent bar */}
-      <span className={['absolute left-0 top-0 h-full w-1', v.bar].join(' ')} style={barStyle} />
+      {/* Left accent bar */}
+      <span className={['absolute left-0 top-0 h-full w-1', v.bar].join(' ')} />
+
       <div className="flex items-start gap-3">
-        {/* Icon */}
-        <div
-          className={['mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-white', v.iconBg].join(' ')}
-          aria-hidden="true"
-        >
+        <div className={['mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-white', v.iconBg].join(' ')} aria-hidden="true">
           {icon}
         </div>
 
-        {/* Message */}
         <div className="flex-1">
           <p className={['text-sm', v.text].join(' ')} data-testid="toast-message">
             {message}
           </p>
         </div>
 
-        {/* Close button */}
         <button
           type="button"
           aria-label="Close toast"
@@ -166,9 +94,8 @@ export default function Toast({ message, onClose, type = 'info' }) {
             setVisible(false);
             setTimeout(() => onClose && onClose(), 200);
           }}
-          className="ml-2 inline-flex items-center justify-center rounded-md p-1 text-gray-500 hover:text-gray-800 transition-colors"
+          className="ml-2 inline-flex items-center justify-center rounded-md p-1 text-text/70 hover:text-text transition-colors"
           data-testid="toast-close"
-          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#374151', fontSize: '14px' }}
         >
           <span aria-hidden="true">✕</span>
         </button>
