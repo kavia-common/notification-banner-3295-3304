@@ -1,82 +1,36 @@
-# Lightweight React Template for KAVIA
+# React + Tailwind Notification Frontend
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+A lightweight React application styled with Tailwind CSS that shows a top-right notification when triggered and automatically dismisses after 3 seconds.
 
 ## Features
+- Tailwind CSS styling with Ocean Professional theme (blue primary, amber secondary)
+- Top-right notification with auto-dismiss and close button
+- Accessible (role=alert/status, aria-live=polite)
+- Smooth gradients, rounded corners, subtle shadows
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+## Theme
+Configured in `tailwind.config.js`:
+- colors.extend:
+  - primary: #2563EB
+  - secondary/success: #F59E0B
+  - error: #EF4444
+  - background: #f9fafb
+  - surface: #ffffff
+  - text: #111827
 
 ## Getting Started
+- npm install
+- npm start
+- App runs at http://localhost:3000
 
-In the project directory, you can run:
+## Testing
+- npm test
+- Tests include verification of notification appearing and auto-dismissing after 3 seconds (Jest fake timers).
 
-### `npm start`
+## Files of interest
+- src/components/Notification.jsx: Notification UI and auto-dismiss logic
+- src/App.js: Demo UI with input and trigger buttons
+- src/index.css: Tailwind directives and base styles
+- tailwind.config.js & postcss.config.js: Tailwind/PostCSS configuration
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-### `npm test`
-
-Launches the test runner in interactive watch mode.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-## Customization
-
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
-
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+No environment variables are required for this demo, but the app supports standard CRA variables if needed.
