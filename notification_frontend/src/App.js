@@ -58,16 +58,16 @@ function App() {
   // Live hint messages based on current values (no toasts)
   const usernameHint = useMemo(() => {
     const u = username.trim();
-    if (!u) return 'Required';
-    if (u.length < 3) return 'Must be at least 3 characters';
-    return ''; // no hint when valid
+    // Do not show "Required" inline; only show length hint if present
+    if (u && u.length < 3) return 'Must be at least 3 characters';
+    return ''; // no hint when empty or valid
   }, [username]);
 
   const passwordHint = useMemo(() => {
     const p = password.trim();
-    if (!p) return 'Required';
-    if (p.length < 6) return 'Must be at least 6 characters';
-    return ''; // no hint when valid
+    // Do not show "Required" inline; only show length hint if present
+    if (p && p.length < 6) return 'Must be at least 6 characters';
+    return ''; // no hint when empty or valid
   }, [password]);
 
   // Submit form handler: single invalid toast if invalid, success on valid.
