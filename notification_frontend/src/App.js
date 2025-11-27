@@ -9,9 +9,9 @@ function App() {
    * A basic auth-like form with username and password that can:
    * - Save changes (button) -> validates then shows success toast "Changes saved successfully"
    * - Submit form (submit button or Enter) -> validates then shows success toast "Form submitted successfully"
-   * - If fields invalid -> shows separate error toasts describing each invalid field
-   * Toasts stack at top-right and each auto-dismisses after its own duration
-   * (success: 3000ms, error: 5000ms).
+   * - On Save changes: invalid fields show separate error toasts, valid shows success (unchanged)
+   * - On Submit: if invalid, show exactly one toast "Please fill in the required details" for 3000ms
+   * Toasts stack at top-right, managed by ToastContainer durations.
    */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -24,14 +24,13 @@ function App() {
     addToast({ message, type: 'success', duration: SUCCESS_DURATION });
   };
 
-  const errorToast = (message) => {
-    addToast({ message, type: 'error', duration: ERROR_DURATION });
+  const errorToast = (message, duration = ERROR_DURATION) => {
+    addToast({ message, type: 'error', duration });
   };
 
-  // Validate fields and emit toasts for every failure. Returns true if valid.
-  const validateAndToast = () => {
+  // Validate fields and return { valid, errors[] } without side-effects.
+  const computeValidation = () => {
     const errors = [];
-
     const u = username.trim();
     const p = password.trim();
 
@@ -47,28 +46,32 @@ function App() {
       errors.push('Password must be at least 6 characters');
     }
 
-    if (errors.length > 0) {
-      // Emit separate error toasts so they stack
-      errors.forEach((msg) => errorToast(msg));
-      return false;
-    }
-    return true;
+    return { valid: errors.length === 0, errors };
   };
 
-  // Submit form handler
+  // Submit form handler: single invalid toast if invalid, success on valid.
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validateAndToast()) return;
+    const { valid } = computeValidation();
 
-    // Normally you would perform auth/submit logic here
+    if (!valid) {
+      // Exactly one toast, 3000ms, error type as appropriate
+      errorToast('Please fill in the required details', 3000);
+      return;
+    }
+
     successToast('Form submitted successfully');
   };
 
-  // Save changes handler (non-submit action)
+  // Save changes handler (non-submit action): keep existing behavior (field-specific toasts).
   const handleSaveChanges = () => {
-    if (!validateAndToast()) return;
+    const { valid, errors } = computeValidation();
+    if (!valid) {
+      // Emit separate error toasts so they stack (existing behavior)
+      errors.forEach((msg) => errorToast(msg));
+      return;
+    }
 
-    // Persist draft changes normally; here we only show a toast
     successToast('Changes saved successfully');
   };
 
@@ -81,8 +84,7 @@ function App() {
               <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
               <p className="mt-1 text-sm text-text/70">
                 Use the form below. "Save changes" and submitting the form validate fields.
-                Success shows a green toast (3s). Invalid inputs show specific error toasts (5s)
-                that stack without overlap.
+                Save shows detailed invalid toasts; Submit shows a single invalid toast. Success shows a green toast.
               </p>
             </div>
             <a
