@@ -47,11 +47,19 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-500/10 to-gray-50">
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="mx-auto mt-12 w-full max-w-lg rounded-2xl bg-surface shadow-md ring-1 ring-primary/10">
-          <div className="border-b border-primary/10 px-6 py-4">
-            <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
-            <p className="mt-1 text-sm text-text/70">
-              Use the form below. "Save changes" shows a success toast. Submitting the form shows success when valid or an error if fields are empty. Auto-dismiss after 3 seconds.
-            </p>
+          <div className="flex items-start justify-between border-b border-primary/10 px-6 py-4">
+            <div>
+              <h1 className="text-lg font-semibold text-text">Toast Demo</h1>
+              <p className="mt-1 text-sm text-text/70">
+                Use the form below. "Save changes" shows a success toast. Submitting the form shows success when valid or an error if fields are empty. Auto-dismiss after 3 seconds.
+              </p>
+            </div>
+            <a
+              href="/toast-showcase"
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white shadow hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+            >
+              Open Toast Showcase →
+            </a>
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-6">
