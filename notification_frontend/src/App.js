@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './App.css';
 import './index.css';
 import { useToast } from './components/ToastContainer';
@@ -12,9 +12,14 @@ function App() {
    * - On Save changes: invalid fields show separate error toasts, valid shows success (unchanged)
    * - On Submit: if invalid, show exactly one toast "Please fill in the required details" for 3000ms
    * Toasts stack at top-right, managed by ToastContainer durations.
+   *
+   * Enhanced per task:
+   * - Inline, live-updating hints below fields (no extra toasts)
+   * - Show/hide toggle for password visibility
    */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { addToast } = useToast();
 
   const SUCCESS_DURATION = 3000;
@@ -28,8 +33,9 @@ function App() {
     addToast({ message, type: 'error', duration });
   };
 
-  // Validate fields and return { valid, errors[] } without side-effects.
+  // PUBLIC_INTERFACE
   const computeValidation = () => {
+    /** Compute validity and collect errors for Save/Submit toasts (no side effects). */
     const errors = [];
     const u = username.trim();
     const p = password.trim();
@@ -48,6 +54,21 @@ function App() {
 
     return { valid: errors.length === 0, errors };
   };
+
+  // Live hint messages based on current values (no toasts)
+  const usernameHint = useMemo(() => {
+    const u = username.trim();
+    if (!u) return 'Required';
+    if (u.length < 3) return 'Must be at least 3 characters';
+    return ''; // no hint when valid
+  }, [username]);
+
+  const passwordHint = useMemo(() => {
+    const p = password.trim();
+    if (!p) return 'Required';
+    if (p.length < 6) return 'Must be at least 6 characters';
+    return ''; // no hint when valid
+  }, [password]);
 
   // Submit form handler: single invalid toast if invalid, success on valid.
   const handleSubmit = (e) => {
@@ -74,6 +95,11 @@ function App() {
 
     successToast('Changes saved successfully');
   };
+
+  // Basic styles for inline hints (Tailwind if available; inline fallback included)
+  const hintBaseClasses = 'mt-1 text-xs';
+  const hintNeutralClasses = 'text-gray-500'; // neutral info
+  const hintErrorClasses = 'text-red-600'; // error
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500/10 to-gray-50">
@@ -108,21 +134,59 @@ function App() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your username"
                   className="mt-2 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 text-sm text-text placeholder:text-text/40 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
+                  aria-describedby="username-hint"
                 />
+                {usernameHint && (
+                  <p
+                    id="username-hint"
+                    className={`${hintBaseClasses} ${username.trim().length === 0 || username.trim().length < 3 ? hintErrorClasses : hintNeutralClasses}`}
+                    style={{ color: (!username || username.trim().length < 3) ? '#dc2626' : '#6b7280' }}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {usernameHint}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-text">
                   Password
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="mt-2 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 text-sm text-text placeholder:text-text/40 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
-                />
+                <div className="mt-2 relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full rounded-lg border border-primary/20 bg-white px-3 py-2 pr-20 text-sm text-text placeholder:text-text/40 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
+                    aria-describedby="password-hint"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute inset-y-0 right-2 my-auto h-8 px-2 text-xs rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    data-testid="btn-toggle-password"
+                    style={{
+                      border: '1px solid rgba(0,0,0,0.06)',
+                    }}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {passwordHint && (
+                  <p
+                    id="password-hint"
+                    className={`${hintBaseClasses} ${password.trim().length === 0 || password.trim().length < 6 ? hintErrorClasses : hintNeutralClasses}`}
+                    style={{ color: (!password || password.trim().length < 6) ? '#dc2626' : '#6b7280' }}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {passwordHint}
+                  </p>
+                )}
               </div>
             </div>
 
